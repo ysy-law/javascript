@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>优化递归函数</title>
+</head>
+<body>
+    <script>
+        // 递归
+        function factorial(n) {
+            if(n === 1){
+                return n;
+            }
+            return n * factorial(n - 1);
+        }
+        console.log(factorial(5));
+        
+        // 尾递归优化 把所有内部变量改写成函数参数形式
+        function factorial2(n, total) {
+            'use strict';
+            if(n === 1){
+                return total;
+            }
+            return factorial2(n - 1, n * total);
+        }
+        console.log(factorial2(10, 1));
+
+        // 尾递归优化 ES6 添加默认值
+        function factorial3(n, total = 1) {
+            if(n === 1){
+                return total;
+            }
+            return factorial3(n - 1, n * total);
+        }
+        console.log(factorial3(10));
+
+        // 尾递归优化 改写函数
+        function _factorial(n, total) {
+            'use strict';
+            if(n === 1){
+                return total;
+            }
+            return _factorial(n - 1, n * total);
+        }
+        function factorial4(n) {
+            return _factorial(n, 1);
+        }
+        console.log(factorial4(10));
+
+        // 蹦床函数优化递归
+        function trampoline(f){
+            while (f && f instanceof Function){
+               f = f();
+            }
+            return f;
+        }
+        function factorial5(n, total = 1) {
+            if(n === 1){
+                return total;
+            }
+            return factorial5.bind(null, n - 1, n * total);
+        }
+        console.log(trampoline(factorial5(5)));
+
+        // 终极递归优化方案
+        function tco(f) {
+            var value,
+                active = false,
+                accumulated = [];
+            return function accumulator() {
+                accumulated.push(arguments);
+                if(!active){
+                    active = true;
+                    while (accumulated.length){
+                        value = f.apply(this, accumulated.shift());
+                    }
+                    active = false;
+                    return value;
+                }
+            }
+        }
+        var factorial6 =  tco(function (n, total = 1) {
+            if(n === 1){
+                return total;
+            }
+            return factorial6(n - 1, n * total);
+        });
+        console.log(factorial6(5));
+    </script>
+</body>
+</html>
